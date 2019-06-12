@@ -1,0 +1,168 @@
+<head>
+  <title>facebook-group</title>
+</head>
+
+<body>
+  {{> hello}}
+</body>
+
+<template name="hello">
+  <style>
+  /* .grab {cursor: -webkit-grab; cursor: grab;} */
+  .pointer {cursor: pointer;}
+  </style>
+  <div id="fb-root">
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/th_TH/sdk.js#xfbml=1&version=v3.3&appId=1970205399950786&autoLogAppEvents=1"></script>
+<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+</fb:login-button></div>
+<h1 style="text-align:center">Facebook Group</h1>
+<div class="results" id="results"></div>
+<div id="show">
+  <form id="getGroup">
+   <div id="group" name="group1">   
+   </div>
+   <div class="row">
+      <div class="col-lg-6 col-sm-6" style="text-align: left;margin-top:10px">
+          <div class="input-group">
+              <span class="input-group-addon">Token Facebook</span>
+              <input type="text" name="token" class="form-control" placeholder="Token Facebook" />
+          </div>
+      </div>
+  </div>
+   <!-- <button type="submit" name="group" class="btn btn-primary">
+      <i class="fa fa-plus"></i> submit
+  </button> -->
+  </form>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<br>
+<div id="init">
+    <h3>Topic</h3>
+    <br>
+</div>
+<div style="height:300px;overflow:scroll;margin-left:10px;" id="showtable">
+<table class="table table-striped " border="1">
+    <thead>
+        <tr>
+            <th scope="col" style="text-align: center;" >No</th>
+            <th scope="col" style="text-align: center;" >Topic</th>
+            <th scope="col" style="text-align: center;" >Created Time</th>
+        </tr>
+    </thead>
+    <tbody>
+      {{#if feed}}
+      <script>showtable()</script>
+        {{#each item in feed}}
+        <tr>
+            <td scope="col" style="text-align: center;">{{No @index}}</td>
+            {{#if item.message }}
+            <td scope="col" style="text-align: center;"><span onclick="getPaging($(this).text())" id="{{item.id}}"  class="pointer">{{item.message}}</span></td>
+            {{else}}
+            <td scope="col" style="text-align: center;"><span onclick="getPaging($(this).text())" id="{{item.id}}"  class="pointer">{{item.story}}</span></td>
+            {{/if}}
+            <td scope="col" style="text-align: center;">{{item.created_time}}</td>
+       </tr>
+       {{/each}}
+      {{else}}
+      <tr><td>token expire</td></tr>
+      {{/if}}
+    </tbody>
+</table>
+</div>
+<br>
+<div id="init-comment">
+    <h3>Comment</h3>
+    <!-- <p></p> -->
+</div>
+<div id="topic">
+</div>
+<br>
+<div id="comment">
+    <table class="table table-striped " border="1">
+        <thead>
+            <tr>
+                <!-- <th scope="col" style="text-align: center;" >No</th> -->
+                <th scope="col" style="text-align: center;" >Comment</th>
+                <th scope="col" style="text-align: center;" >Created Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#if num }}
+            <td scope="col" style="text-align: center;">No Comment</td>
+            {{else}}
+            {{#each item in comment}}
+            <tr>
+                <!-- <td scope="col" style="text-align: center;">{{No @index}}</td> -->
+                <td scope="col" style="text-align: center;">{{item.message}}</td>
+                <td scope="col" style="text-align: center;">{{item.created_time}}</td>
+           </tr>
+           {{/each}}
+           {{/if}}
+        </tbody>
+    </table>
+</div>
+
+<script>
+   $("#init").hide();
+   $("#showtable").hide();
+   $("#show").hide();
+   $("#comment").hide();
+   $("#init-comment").hide();
+  document.getElementById("results").style.fontSize = "xx-large";
+function showtable(){
+  $("#showtable").show();
+  $("#init").show();
+}
+  function getPaging(str)
+{
+  console.log('text',str)
+  // $("p").text(str.fontSize(60));
+  $('#topic').html(str);
+  document.getElementById("topic").style.fontSize = "20px";
+  $("#comment").show();
+  $("#init-comment").show();
+}
+function checkLoginState() {
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+}
+function statusChangeCallback(response) {
+    console.log(response);
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      login();
+    } 
+  }
+  function login() {
+    FB.api('/me', function(response) {
+      $('.results').html('Successful login for:'+response.name);
+      console.log('Successful login for: ' + response.name);
+      if(response.name){
+        $("#fb-root").hide();
+        $("#show").show();
+        getListGroup()
+      }
+    });
+  }
+function getListGroup(){
+  var div = document.querySelector("#group"),
+    frag = document.createDocumentFragment(),
+    select = document.createElement("select");
+     select.id = "group"
+  FB.api('/me/groups', function(groups) {
+    groups = groups.data
+    groups.forEach(function(group) {
+      select.options.add( new Option(group.name,group.id) );
+   });
+      console.log('Group list: ' + JSON.stringify(groups,null,2));
+    });
+frag.appendChild(select);
+div.appendChild(frag);
+}
+
+</script>
+
+</template>
+
