@@ -24,8 +24,9 @@
    <div class="row">
       <div class="col-lg-6 col-sm-6" style="text-align: left;margin-top:10px">
           <div class="input-group">
-              <span class="input-group-addon">Token Facebook</span>
-              <input type="text" name="token" class="form-control" placeholder="Token Facebook" />
+              <!-- <span class="input-group-addon">Token Facebook</span> -->
+              <!-- <input type="text" name="token" class="form-control" placeholder="Token Facebook" /> -->
+              <input type="hidden" name="token" id="token"/>
           </div>
       </div>
   </div>
@@ -125,6 +126,8 @@ function showtable(){
 }
 function checkLoginState() {
   FB.getLoginStatus(function(response) {
+    console.log('response',response.authResponse.accessToken)
+    $("#token").val(response.authResponse.accessToken)
     statusChangeCallback(response);
   });
 }
